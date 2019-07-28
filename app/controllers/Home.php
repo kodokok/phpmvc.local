@@ -2,6 +2,8 @@
 
 namespace app\controllers;
 
+use \core\View;
+
 /**
  * Home controller
  */
@@ -15,7 +17,7 @@ class Home extends \core\Controller
    */
   protected function before()
   {
-    echo "(before) ";
+    // echo "(before) ";
     // return false;
   }
 
@@ -26,7 +28,7 @@ class Home extends \core\Controller
    */
   protected function after()
   {
-    echo " (after) ";
+    // echo " (after) ";
     // return false
   }
 
@@ -37,7 +39,15 @@ class Home extends \core\Controller
    */
   public function indexAction()
   {
-    echo 'Hello from the index action in the Home controller!';
+    // echo 'Hello from the index action in the Home controller!';
+    // View::render('Home/index.php', [
+    //   'name' => 'Dave',
+    //   'colours' => ['red', 'green', 'blue']
+    // ]);
+    View::renderTemplate('Home/index.html', [
+      'name' => 'Dave',
+      'colours' => ['red', 'green', 'blue']
+    ]);
   }
 
 }
