@@ -1,5 +1,7 @@
 <?php
 
+namespace core;
+
 /**
  * Router class
  */
@@ -97,4 +99,121 @@ class Router
   {
     return $this->params;
   }
+
+  /**
+   * Dispatch the route, creating the object and running the action method
+   * 
+   * @param string $url The route URL
+   * 
+   * @return void
+   */
+  public function dispatch($url)
+  {
+    $url = $this->removeQueryStringVariables($url);
+
+    if ($this->match($url)) {
+      $controller = $this->params['controller'];
+      $controller = $this->convertToStudlyCaps($controller);
+      // $controller = "app\controllers\\$controller";
+      $controller = $this->getNamespace() . $controller;
+
+      if (class_exists($controller)) {
+        $controller_object = new $controller($this->params);
+        
+        $action = $this->params['action'];
+        $action = $this->convertToCamelCase($action);
+
+        if (is_callable([$controller_object, $action])) {
+          $controller_object->$action();
+        } else {
+          echo "Method $action (in controller $controller) not found!";
+        }
+      } else {
+        echo "Controller class $controller not found!";
+      }
+    } else {
+
+    }
+  }
+
+  /**
+   * Convert the string hypens to StudlyCaps,
+   * e.g. post-authors => PostAuthors
+   * 
+   * @param string $string The string to convert
+   * 
+   * @return string
+   */
+  protected function convertToStudlyCaps($string)
+  {
+    return str_replace(' ', '', ucwords(str_replace('-', ' ', $string)));
+  }
+
+  /**
+   * Convert the string hypens to camelCase,
+   * e.g. add-new => AddNew
+   * 
+   * @param string $string The string to convert
+   * 
+   * @return string
+   */
+  protected function convertToCamelCase($string)
+  {
+    return lcfirst($this->convertToStudlyCaps($string));
+  }
+
+  /**
+     * Remove the query string variables from the URL (if any). As the full
+     * query string is used for the route, any variables at the end will need
+     * to be removed before the route is matched to the routing table. For
+     * example:
+     *
+     *   URL                           $_SERVER['QUERY_STRING']  Route
+     *   -------------------------------------------------------------------
+     *   localhost                     ''                        ''
+     *   localhost/?                   ''                        ''
+     *   localhost/?page=1             page=1                    ''
+     *   localhost/posts?page=1        posts&page=1              posts
+     *   localhost/posts/index         posts/index               posts/index
+     *   localhost/posts/index?page=1  posts/index&page=1        posts/index
+     *
+     * A URL of the format localhost/?page (one variable name, no value) won't
+     * work however. (NB. The .htaccess file converts the first ? to a & when
+     * it's passed through to the $_SERVER variable).
+     *
+     * @param string $url The full URL
+     *
+     * @return string The URL with the query string variables removed
+     */
+    protected function removeQueryStringVariables($url)
+    {
+        if ($url != '') {
+            $parts = explode('&', $url, 2);
+
+            if (strpos($parts[0], '=') === false) {
+                $url = $parts[0];
+            } else {
+                $url = '';
+            }
+        }
+
+        return $url;
+    }
+
+    /**
+     * Get the namespace for the controller class. The namespace defined in the
+     * route parameters is added if present
+     * 
+     * @return string The request URL
+     */
+    protected function getNamespace()
+    {
+      $namespace = 'app\controllers\\';
+
+      if (array_key_exists('namespace', $this->params)) {
+        $namespace .= $this->params['namespace'] . '\\';
+      }
+
+      return $namespace;
+    }
 }
