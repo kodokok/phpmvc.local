@@ -4,26 +4,14 @@
  * Front controller
  */
 
-require_once dirname(__DIR__) . '/vendor/autoload.php';
-
 /**
- * Autoloader
+ * Composer Autoloader
  */
-spl_autoload_register(function ($class) {
-  $root = dirname(__DIR__);
-  $file = $root . '/' . str_replace('\\', '/', $class) . '.php';
-  if (is_readable($file)) {
-    require $file;
-  }
-});
-
-// echo 'Requested URL = "' .  $_SERVER['QUERY_STRING'] . '"';
+require_once '../vendor/autoload.php';
 
 /* 
 Routing 
 */
-// require '../core/Router.php';
-
 $router = new core\Router();
 
 //echo get_class($router);
