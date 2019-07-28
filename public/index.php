@@ -4,8 +4,7 @@
  * Front controller
  */
 
- // Require the controller class
-//  require '../app/controllers/Posts.php';
+require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 /**
  * Autoloader
